@@ -1,7 +1,7 @@
 {
   "name": "rate-my-stevens",
   "version": "1.0.0",
-  "description": "Project for SSW 590",
+  "description": "Project for SSW590",
   "main": "app.js",
   "type": "module",
   "scripts": {
@@ -10,7 +10,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.1.1",
+    "email-validator": "^2.0.4",
     "express": "^4.18.2",
-    "express-handlebars": "^7.1.2"
+    "express-handlebars": "^7.1.2",
+    "express-session": "^1.17.3",
+    "mongodb": "^6.3.0"
   }
 }
