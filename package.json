@@ -1,20 +1,24 @@
 {
-  "name": "rate-my-stevens",
+  "name": "RMStevens",
   "version": "1.0.0",
-  "description": "Project for SSW590",
+  "description": "RMStevens",
   "main": "app.js",
   "type": "module",
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "seed": "node seed.js"
   },
-  "author": "",
+  "author": "Daniel Zamloot, Dean Zazzera, Marco Mangano, Jeffery Fitzsimmons, Thomas Bissailon",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
     "email-validator": "^2.0.4",
     "express": "^4.18.2",
     "express-handlebars": "^7.1.2",
     "express-session": "^1.17.3",
-    "mongodb": "^6.3.0"
+    "fs": "^0.0.1-security",
+    "mongodb": "^6.3.0",
+    "xss": "^1.0.14"
   }
 }
