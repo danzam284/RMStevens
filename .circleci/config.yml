@@ -1,0 +1,13 @@
+version: 2.1
+
+jobs:
+  deploy:
+    docker:
+      - image: arvindr226/alpine-ssh
+    steps:
+      - run: ssh -oStrictHostKeyChecking=no -v $USER@$DNS "./deploy.sh"
+
+workflows:
+  deploy-to-ec2:
+    jobs:
+      - deploy
