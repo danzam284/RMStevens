@@ -1,14 +1,14 @@
 {
-  "name": "RMStevens",
+  "name": "cs546-group-35-final-project",
   "version": "1.0.0",
-  "description": "RMStevens",
+  "description": "Final project for CS 546 Group 35",
   "main": "app.js",
   "type": "module",
   "scripts": {
     "start": "node app.js",
     "seed": "node seed.js"
   },
-  "author": "Daniel Zamloot, Dean Zazzera, Marco Mangano, Jeffery Fitzsimmons, Thomas Bissailon",
+  "author": "Lauren Kibalo, Harris Pyo, Jason Vera, Daniel Zamloot, Dean Zazzera",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
