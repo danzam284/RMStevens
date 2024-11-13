@@ -1,8 +1,5 @@
-<header>
-    <h1>Make a Review</h1>
-</header>
+<h1>Make a Review</h1>
 
-<p id="error">{{error}}</p>
 <form action="/create" id="create-form" method="POST">
     <label for="courseNameInput">Course</label>
     <select name="courseNameInput" id="courseNameInput">
@@ -34,13 +31,9 @@
     <textarea name="reviewTextInput" id="reviewTextInput" cols="30" rows="10"></textarea>
     <br>
     <label for="professorNameInput">Professor</label>
-    <select name="professorNameInput" id="professorNameInput">
-        {{#each professors}}
-        <option value="{{name}}">{{name}}</option>
-        {{/each}}
-    </select>
+    <input name="professorNameInput" id="professorNameInput" type="text">
     <br>
-    <input class="submit" id="create-form-submit" type="submit">
+    <input class="submit" type="submit">
 </form>
 
-<a href="/home">Back</a>
+<a href="/main">Back</a>
