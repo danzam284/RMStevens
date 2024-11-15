@@ -44,6 +44,6 @@ setInterval(async () => {
     const allUsers = await userCollection.find({}).toArray();
     const numUsers = allUsers.length;
     pushMetrics("AppUsers", numUsers);
-}, 5000);
+}, 60000);
 
 export default operationCounter;
