@@ -5,6 +5,7 @@ import {fileURLToPath} from 'url';
 import {dirname} from 'path';
 import exphbs from 'express-handlebars';
 import session from 'express-session';
+import operationCounter from './dashboard.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const staticDir = express.static(__dirname + '/public');
@@ -23,6 +24,7 @@ app.use(session({
 }));
 
 app.use('/', (req, res, next) => {
+    operationCounter.inc();
     if (req.originalUrl !== "/") {
         return next();
     }
@@ -36,6 +38,7 @@ app.use('/', (req, res, next) => {
 });
 
 app.use('/login', (req, res, next) => {
+    operationCounter.inc();
     if (req.session.user) {
         return res.redirect("/main");
     } else {
@@ -44,6 +47,7 @@ app.use('/login', (req, res, next) => {
 });
 
 app.use('/register', (req, res, next) => {
+    operationCounter.inc();
     if (req.session.user) {
         return req.redirect("/main");
     } else {
@@ -52,6 +56,7 @@ app.use('/register', (req, res, next) => {
 });
 
 app.use('/main', (req, res, next) => {
+    operationCounter.inc();
     if (!req.session.user) {
         return res.redirect("/login");
     } else {
@@ -60,6 +65,7 @@ app.use('/main', (req, res, next) => {
 });
 
 app.use('/create', (req, res, next) => {
+    operationCounter.inc();
     if (!req.session.user) {
         return res.redirect("/login");
     } else {
@@ -68,6 +74,7 @@ app.use('/create', (req, res, next) => {
 });
 
 app.use('/addCourse', (req, res, next) => {
+    operationCounter.inc();
     if (!req.session.user) {
         return res.redirect("/login");
     } else {
@@ -76,6 +83,7 @@ app.use('/addCourse', (req, res, next) => {
 });
 
 app.use('/addProfessor', (req, res, next) => {
+    operationCounter.inc();
     if (!req.session.user) {
         return res.redirect("/login");
     } else {
@@ -84,6 +92,7 @@ app.use('/addProfessor', (req, res, next) => {
 });
 
 app.use('/logout', (req, res, next) => {
+    operationCounter.inc();
     if (!req.session.user) {
         return res.redirect("/login");
     } else {
