@@ -10,8 +10,6 @@ const __dirname = dirname(__filename);
 const staticDir = express.static(__dirname + '/public');
 import operationCounter from './dashboard.js';
 
-
-operationCounter.inc();
 app.use('/public', staticDir);
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
@@ -26,6 +24,7 @@ app.use(session({
 }));
 
 app.use('/', (req, res, next) => {
+    operationCounter.inc();
     if (req.originalUrl !== "/") {
         return next();
     }
@@ -39,6 +38,7 @@ app.use('/', (req, res, next) => {
 });
 
 app.use('/login', (req, res, next) => {
+    operationCounter.inc();
     if (req.session.user) {
         return res.redirect("/home");
     } else {
@@ -47,6 +47,7 @@ app.use('/login', (req, res, next) => {
 });
 
 app.use('/register', (req, res, next) => {
+    operationCounter.inc();
     if (req.session.user) {
         return req.redirect("/home");
     } else {
@@ -55,6 +56,7 @@ app.use('/register', (req, res, next) => {
 });
 
 app.use('/home', (req, res, next) => {
+    operationCounter.inc();
     if (!req.session.user) {
         return res.redirect("/login");
     } else {
@@ -63,6 +65,7 @@ app.use('/home', (req, res, next) => {
 });
 
 app.use('/create', (req, res, next) => {
+    operationCounter.inc();
     if (!req.session.user) {
         return res.redirect("/login");
     } else {
@@ -71,6 +74,7 @@ app.use('/create', (req, res, next) => {
 });
 
 app.use('/addCourse', (req, res, next) => {
+    operationCounter.inc();
     if (!req.session.user) {
         return res.redirect("/login");
     } else {
@@ -79,6 +83,7 @@ app.use('/addCourse', (req, res, next) => {
 });
 
 app.use('/addProfessor', (req, res, next) => {
+    operationCounter.inc();
     if (!req.session.user) {
         return res.redirect("/login");
     } else {
@@ -87,6 +92,7 @@ app.use('/addProfessor', (req, res, next) => {
 });
 
 app.use('/logout', (req, res, next) => {
+    operationCounter.inc();
     if (!req.session.user) {
         return res.redirect("/login");
     } else {
