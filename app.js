@@ -5,11 +5,13 @@ import {fileURLToPath} from 'url';
 import {dirname} from 'path';
 import exphbs from 'express-handlebars';
 import session from 'express-session';
-import operationCounter from './dashboard.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const staticDir = express.static(__dirname + '/public');
+import operationCounter from './dashboard.js';
 
+
+operationCounter.inc();
 app.use('/public', staticDir);
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
@@ -24,39 +26,35 @@ app.use(session({
 }));
 
 app.use('/', (req, res, next) => {
-    operationCounter.inc();
     if (req.originalUrl !== "/") {
         return next();
     }
 
     if (req.session.user) {
         console.log("heree");
-        return res.redirect("/main");
+        return res.redirect("/home");
     } else {
         return res.redirect("/login");
     }
 });
 
 app.use('/login', (req, res, next) => {
-    operationCounter.inc();
     if (req.session.user) {
-        return res.redirect("/main");
+        return res.redirect("/home");
     } else {
         next();
     }
 });
 
 app.use('/register', (req, res, next) => {
-    operationCounter.inc();
     if (req.session.user) {
-        return req.redirect("/main");
+        return req.redirect("/home");
     } else {
         next();
     }
 });
 
-app.use('/main', (req, res, next) => {
-    operationCounter.inc();
+app.use('/home', (req, res, next) => {
     if (!req.session.user) {
         return res.redirect("/login");
     } else {
@@ -65,7 +63,6 @@ app.use('/main', (req, res, next) => {
 });
 
 app.use('/create', (req, res, next) => {
-    operationCounter.inc();
     if (!req.session.user) {
         return res.redirect("/login");
     } else {
@@ -74,7 +71,6 @@ app.use('/create', (req, res, next) => {
 });
 
 app.use('/addCourse', (req, res, next) => {
-    operationCounter.inc();
     if (!req.session.user) {
         return res.redirect("/login");
     } else {
@@ -83,7 +79,6 @@ app.use('/addCourse', (req, res, next) => {
 });
 
 app.use('/addProfessor', (req, res, next) => {
-    operationCounter.inc();
     if (!req.session.user) {
         return res.redirect("/login");
     } else {
@@ -92,7 +87,6 @@ app.use('/addProfessor', (req, res, next) => {
 });
 
 app.use('/logout', (req, res, next) => {
-    operationCounter.inc();
     if (!req.session.user) {
         return res.redirect("/login");
     } else {

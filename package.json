@@ -1,13 +1,13 @@
 {
-  "name": "RMStevens",
+  "name": "rate-my-stevens",
   "version": "1.0.0",
-  "description": "Project for SSW 590",
+  "description": "Final project for SSW 590",
   "main": "app.js",
   "type": "module",
   "scripts": {
     "start": "node app.js"
   },
-  "author": "",
+  "author": "Dean Zazzera, Daniel Zamloot, Marcos Mangano, Tom Bisaillon, Jeffrey Fitzsimmons, Ryan Hajtovic",
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.1692.0",
