@@ -1,3 +1,4 @@
+import operationCounter from './dashboard.js';
 import express from 'express';
 const app = express();
 import configRoutes from './routes/index.js';
@@ -8,7 +9,6 @@ import session from 'express-session';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const staticDir = express.static(__dirname + '/public');
-import operationCounter from './dashboard.js';
 
 app.use('/public', staticDir);
 app.use(express.json());
