@@ -5,6 +5,7 @@ import { registerUser, loginUser } from '../data/users.js';
 import { users, courses, professors } from '../config/mongoCollections.js';
 import { addCourse } from '../data/course.js';
 import { addProfessor } from '../data/professor.js';
+import { ObjectId } from 'mongodb';
 
 const router = Router();
 
@@ -92,33 +93,56 @@ router
     const user = req.session.user;
     const courseName = req.body.courseNameInput;
     const professorName = req.body.professorNameInput;
-    const rating = req.body.ratingInput;
-    const difficulty = req.body.difficultyInput;
+    const rating = parseInt(req.body.ratingInput);
+    const difficulty = parseInt(req.body.difficultyInput);
     const reviewText = req.body.reviewTextInput;
     try {
       helpers.validateCourseName(courseName);
       helpers.validateName(professorName);
       if (rating < 1 || rating > 5) throw "Invalid rating";
       if (difficulty < 1 || difficulty > 5) throw "Invalid difficulty";
+
+      if (!reviewText || typeof reviewText !== 'string') throw 'Review text cannot be empty';
+      if (reviewText.trim().length === 0) throw 'Review text cannot be filled with just spaces';
+
+      const userCollection = await users();
+      const courseCollection = await courses();
+      const professorCollection = await professors();
+
+      const checkCourse = await courseCollection.findOne({name: courseName});
+      if (!checkCourse) throw "Course does not exist, please add it first before reviewing it.";
+      const checkProfessor = await professorCollection.findOne({name: professorName});
+      if (!checkProfessor) throw "Professor does not exist, please add them first before reviewing them.";
+
+      const newReviewId = new ObjectId();
       const newReview = {
-        courseName: courseName,
+        _id: newReviewId,
         professorName: professorName,
+        courseName: courseName,
+        reviewBody: reviewText,
         rating: rating,
         difficulty: difficulty,
-        reviewText: reviewText
+        date: new Date().toDateString(), 
+        reports: []
       };
-      const userCollection = await users();
-      const updatedUser = await userCollection.updateOne({_id: user._id}, {$push: {reviews: newReview}});
+      
+      const updatedUser = await userCollection.updateOne({_id: new ObjectId(user._id)}, {$push: {reviews: newReview}});
       if (updatedUser.modifiedCount === 0) {
         throw Error("Internal Server Error");
       }
-      const courseCollection = await courses();
-      const updatedCourse = await courseCollection.updateOne({courseName: courseName}, {$push: {reviews: newReview}});
+
+      const selectedCourse = await courseCollection.findOne({name: courseName});
+      const selectedProfessor = await professorCollection.findOne({name: professorName});
+      let newCourseAvgRating = Math.round((((selectedCourse.averageRating * selectedCourse.reviewIds.length) + rating) / (selectedCourse.reviewIds.length + 1)) * 100) / 100;
+      let newCourseAvgDiff = Math.round((((selectedCourse.averageDifficulty * selectedCourse.reviewIds.length) + difficulty) / (selectedCourse.reviewIds.length + 1)) * 100) / 100;
+      const updatedCourse = await courseCollection.updateOne({name: courseName}, {$push: {professorIds: selectedProfessor._id, reviews: newReview, reviewIds: newReviewId}, $set: {averageRating: newCourseAvgRating, averageDifficulty: newCourseAvgDiff}});
       if (updatedCourse.modifiedCount === 0) {
         throw Error("Internal Server Error");
       }
-      const professorCollection = await professors();
-      const updatedProfessor = await professorCollection.updateOne({professorName: professorName}, {$push: {reviews: newReview}});
+      
+      let newProfessorAvgRating = Math.round((((selectedProfessor.averageRating * selectedProfessor.reviewIds.length) + rating) / (selectedProfessor.reviewIds.length + 1)) * 100) / 100;
+      let newProfessorAvgDiff = Math.round((((selectedProfessor.averageDifficulty * selectedProfessor.reviewIds.length) + difficulty) / (selectedProfessor.reviewIds.length + 1)) * 100) / 100;
+      const updatedProfessor = await professorCollection.updateOne({name: professorName}, {$push: {reviews: newReview, reviewIds: newReviewId}, $set: {averageRating: newProfessorAvgRating, averageDifficulty: newProfessorAvgDiff}});
       if (updatedProfessor.modifiedCount === 0) {
         throw Error("Internal Server Error");
       }
@@ -195,24 +219,106 @@ router.route('/prof')
   })
   .post(async (req, res) => {
     try {
-      const professorName = req.body.professorNameInput;
-      console.log(professorName);
-      res.render('../views/prof', { title: 'prof', professorName: professorName });
+      const professorName = req.body.professorNameInput.trim();
+      const professorCollection = await professors();
+      const checkProfessor = await professorCollection.findOne({name: professorName});
+      if (!checkProfessor) {
+        throw Error("Professor not found.");
+      }
+      const userCollection = await users();
+      const professorReviews = [];
+      const allUsers = await userCollection.find({}).toArray();
+      for (let i = 0; i < allUsers.length; i++) {
+        for (let j = 0; j < allUsers[i].reviews.length; j++) {
+          if (allUsers[i].reviews[j].professorName === professorName) {
+            professorReviews.push(allUsers[i].reviews[j]);
+          }
+        }
+      }
+      res.render('../views/prof', { title: 'prof', professorName: professorName, reviews: professorReviews, rating: checkProfessor.averageRating, difficulty: checkProfessor.averageDifficulty });
     } catch (error) {
-      return res.status(400).render("../views/prof", {error: error, title: "prof"});
+      console.log(error);
+      return res.status(400).render("../views/professorSelect", {error: error, title: "prof"});
     }
   });
 
 
 router.route('/course').get(async (req, res) => {
-  const courseCollection = await courses();
-  const allCourses = await courseCollection.find({}).toArray();
-  res.render('../views/courseSelect', {title: "course", courses: allCourses});
+  try {
+    const courseCollection = await courses();
+    const allCourses = await courseCollection.find({}).toArray();
+    res.render('../views/courseSelect', { title: 'course', courses: allCourses });
+  } catch (error) {
+    return res.status(400).render("../views/courseSelect", {error: error, title: "course"});
+  }
 }
 ).post(async (req, res) => {
-  const courseName = req.body.courseNameInput;
-  console.log(courseName);
-  res.render('../views/course', {title: "course", courseName: courseName});
+  try {
+    const courseName = req.body.courseNameInput.trim();
+    const courseCollection = await courses();
+    const checkCourse = await courseCollection.findOne({name: courseName});
+    if (!checkCourse) {
+      throw Error("Course not found.");
+    }
+    const userCollection = await users();
+    const courseReviews = [];
+    const allUsers = await userCollection.find({}).toArray();
+    for (let i = 0; i < allUsers.length; i++) {
+      for (let j = 0; j < allUsers[i].reviews.length; j++) {
+        if (allUsers[i].reviews[j].courseName === courseName) {
+          courseReviews.push(allUsers[i].reviews[j]);
+        }
+      }
+    }
+    res.render('../views/course', { title: 'course', courseName: courseName, reviews: courseReviews, rating: checkCourse.averageRating, difficulty: checkCourse.averageDifficulty });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).render("../views/professorSelect", {error: error, title: "prof"});
+  }
+});
+
+router.route('/bestProfessors').get(async (req, res) => {
+  try {
+    const courseCollection = await courses();
+    const allCourses = await courseCollection.find({}).toArray();
+    res.render('../views/filter', { title: 'Filter Professors', courses: allCourses });
+  } catch (error) {
+    return res.status(400).render("../views/courseSelect", {error: error, title: "course"});
+  }
+}
+).post(async (req, res) => {
+  try {
+    const courseName = req.body.courseNameInput.trim();
+    const filter = req.body.filterByInput.trim();
+    if (filter !== "rat" && filter !== "dif") {
+      throw Error("Invalid filter");
+    }
+    const courseCollection = await courses();
+    const checkCourse = await courseCollection.findOne({name: courseName});
+    if (!checkCourse) {
+      throw Error("Course not found.");
+    }
+    const professorCollection = await professors();
+    const courseProfessors = [];
+    
+    for (let i = 0; i < checkCourse.professorIds.length; i++) {
+      const professor = await professorCollection.findOne({_id: checkCourse.professorIds[i]});
+      if (professor) {
+        courseProfessors.push(professor);
+      }
+    }
+
+    if (filter === "rat") {
+      courseProfessors.sort((a, b) => b.averageRating - a.averageRating);
+    } else {
+      courseProfessors.sort((a, b) => a.averageDifficulty - b.averageDifficulty);
+    }
+
+    res.render('../views/filtered', { title: 'filtered', courseName: courseName, professors: courseProfessors});
+  } catch (error) {
+    console.log(error);
+    return res.status(400).render("../views/professorSelect", {error: error, title: "prof"});
+  }
 });
 
 router.route('/logout').get(async (req, res) => {

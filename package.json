@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node app.js"
   },
-  "author": "ean Zazzera, Daniel Zamloot, Marco Mangano, Tom Bisaillon, Jeffrey Fitzsimmons, Ryan Hajtovik",
+  "author": "Dean Zazzera, Daniel Zamloot, Marcos Mangano, Tom Bisaillon, Jeffrey Fitzsimmons, Ryan Hajtovik",
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.1692.0",
