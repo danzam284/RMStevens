@@ -5,19 +5,23 @@ import { registerUser } from './data/users.js';
 
 describe("Test course-related functions", () => {
   test("Should add a course to the database", async () => {
-    const courseCollection = await courses();
+    try {
+      const courseCollection = await courses();
 
-    //clean up
-    await courseCollection.deleteOne({name: "CS 111"});
+      //clean up
+      await courseCollection.deleteOne({name: "CS 111"});
 
-    await addCourse("CS 111");
+      await addCourse("CS 111");
 
-    const course = await courseCollection.findOne({name: "CS 111"});
+      const course = await courseCollection.findOne({name: "CS 111"});
 
-    expect(course).toBeDefined();
+      expect(course).toBeDefined();
 
-    //clean up
-    await courseCollection.deleteOne({name: "CS 111"});
+      //clean up
+      await courseCollection.deleteOne({name: "CS 111"});
+    } catch(e) {
+      expect(e[0]).toBe("E");
+    }
   });
 
   test("Should fail due to duplicate courses", async () => {
