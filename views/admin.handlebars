@@ -1,0 +1,15 @@
+<h1>All reviews sorted by number of reports</h1>
+<p id="error">{{error}}</p>
+
+{{#each reviews}}
+    <div class="review">
+        <h3>Number of reports: {{reports.length}}</h3>
+        <p>Description: {{reviewBody}}</p>
+        <form action="/delete/{{_id}}" method="POST">
+            <input name="switch" value="delete" hidden>
+            <input name="delete-button" type="submit" value="Delete">
+        </form>
+    </div>
+{{/each}}
+
+<a href="/home">Back</a>
